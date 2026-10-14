@@ -1,6 +1,8 @@
 import Mailgen from "mailgen";
 import nodemailer from "nodemailer";
 
+// for sending the email these are all the data i provide
+
 const sendEmail = async (options) => {
   const mailGenerator = new Mailgen({
     theme: "default",
