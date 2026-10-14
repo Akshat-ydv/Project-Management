@@ -7,8 +7,8 @@ import { emailVerificationMailgenContent, sendEmail } from "../utils/mail.js";
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
     const user = await User.findById(userId);
-    const accessToken = user.generateAccessTokens;
-    const refreshToken = user.generateRefreshTokens;
+    const accessToken = user.generateAccessTokens();
+    const refreshToken = user.generateRefreshTokens();
 
     user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
@@ -27,7 +27,7 @@ const generateAccessAndRefreshTokens = async (userId) => {
 const registerUser = asyncHandler(async (req, res) => {
   const { email, username, password, role } = req.body;
 
-  const existerUser = await user.findOne({
+  const existerUser = await User.findOne({
     $or: [{ username }, { email }],
   });
 
@@ -61,7 +61,7 @@ const registerUser = asyncHandler(async (req, res) => {
     ),
   });
 
-  const createdUser = await user
+  const createdUser = await User
     .findById(user._id)
     .select(
       "-password -refreshToken -emailVerificationToken -emailVerificationExpiry",
