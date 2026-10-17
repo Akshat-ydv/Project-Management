@@ -8,7 +8,7 @@ import {
   sendEmail,
 } from "../utils/mail.js";
 import jwt from "jsonwebtoken";
-import { use } from "react";
+import crypto from "node:crypto";
 
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
@@ -202,7 +202,7 @@ const verifyEmail = asyncHandler(async (req, res) => {
 });
 
 const resendEmailVerification = asyncHandler(async (req, res) => {
-  const user = await User.findOne(req.user?._id);
+  const user = await User.findById(req.user?._id);
 
   if (!user) {
     throw new ApiError(404, "User does not exist");
@@ -234,7 +234,7 @@ const resendEmailVerification = asyncHandler(async (req, res) => {
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =
-    req.cookies.refreshAccessToken || req.body.refreshAccessToken;
+    req.cookies?.refreshToken || req.body?.refreshToken;
 
   if (!incomingRefreshToken) {
     throw new ApiError(401, "Unauthorized access");
@@ -282,7 +282,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 });
 
 const forgotPasswordRequest = asyncHandler(async (req, res) => {
-  const { emai } = req.body;
+  const { email } = req.body;
 
   const user = await User.findOne({ email });
 
@@ -322,8 +322,10 @@ const resetForgotPassword = asyncHandler(async (req, res) => {
   const { resetToken } = req.params;
   const { newPassword } = req.body;
 
-  let hashedToken = crypto.createHash("sha256");
-  update(resetToken).digest("hex");
+  let hashedToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
 
   const user = await User.findOne({
     forgotPasswordToken: hashedToken,
